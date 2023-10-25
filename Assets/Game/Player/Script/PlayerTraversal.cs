@@ -91,6 +91,7 @@ public class PlayerTraversal : MonoBehaviour
 
     private void Start()
     {
+        _cameraManager.OnCameraChange += ChangePerspective;
         _input.OnMoveInput += Move;
         _input.OnSprintInput += Sprint;
         _input.OnCrouchInput += Crouch;
@@ -110,6 +111,7 @@ public class PlayerTraversal : MonoBehaviour
 
     private void OnDestroy()
     {
+        _cameraManager.OnCameraChange -= ChangePerspective;
         _input.OnMoveInput -= Move;
         _input.OnSprintInput -= Sprint;
         _input.OnCrouchInput -= Crouch;
@@ -149,6 +151,8 @@ public class PlayerTraversal : MonoBehaviour
             }
             Vector3 velocity = new Vector3(_rigidbody.velocity.x, 0, _rigidbody.velocity.z);
             _animator.SetFloat("Velocity", velocity.magnitude);
+            _animator.SetFloat("VelocityX", _rigidbody.velocity.x);
+            _animator.SetFloat("VelocityZ", _rigidbody.velocity.z);
         }
         else if (_playerStance == PlayerStance.Climb)
         {
@@ -324,5 +328,10 @@ public class PlayerTraversal : MonoBehaviour
             _playerStance = PlayerStance.Stand;
             _hudManager.HideCancelKeyInfo();
         }
+    }
+
+    private void ChangePerspective()
+    {
+        _animator.SetBool("IsFirstPerson", true);
     }
 }

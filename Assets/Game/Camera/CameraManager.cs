@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -11,6 +12,8 @@ public enum CameraState
 
 public class CameraManager : MonoBehaviour
 {
+    public Action OnCameraChange;
+
     [Header("Reference")]
     [SerializeField]
     private InputManager _input;
@@ -68,5 +71,6 @@ public class CameraManager : MonoBehaviour
             _tpsCamera.gameObject.SetActive(true);
             _fpsCamera.gameObject.SetActive(false);
         }
+        OnCameraChange();
     }
 }
