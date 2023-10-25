@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Unity.Mathematics;
 using UnityEngine;
 
 public enum PlayerStance
@@ -27,40 +22,43 @@ public class PlayerTraversal : MonoBehaviour
     [SerializeField]
     private Transform _fpsTarget;
 
-
     [Header("Movement")]
-    [SerializeField]
-    private float _crouchSpeed;
-    [SerializeField]
-    private float _climbSpeed;
     [SerializeField]
     private float _walkSpeed;
     [SerializeField]
     private float _runSpeed;
     [SerializeField]
-    private float _glideSpeed;
+    private float _crouchSpeed;
     [SerializeField]
     private float _jumpForce;
     [SerializeField]
     private float _rotationSmoothTime = 0.1f;
     [SerializeField]
-    private LayerMask _groundLayer;
-    [SerializeField]
-    private LayerMask _climableLayer;
-    [SerializeField]
     private Transform _stepChecker;
+    [SerializeField]
+    private LayerMask _groundLayer;
     [SerializeField]
     private float _stepOffset;
     [SerializeField]
     private Transform _groundChecker;
     [SerializeField]
     private float _groundCheckerRadius;
+
+    [Header("Climb")]
+    [SerializeField]
+    private float _climbSpeed;
+    [SerializeField]
+    private LayerMask _climableLayer;
     [SerializeField]
     private Transform _climbChecker;
     [SerializeField]
     private float _ClimbCheckDistance;
     [SerializeField]
     private Vector3 _climbOffset;
+
+    [Header("Glide")]
+    [SerializeField]
+    private float _glideSpeed;
     [SerializeField]
     private Vector3 _glideRotationSpeed;
     [SerializeField]
