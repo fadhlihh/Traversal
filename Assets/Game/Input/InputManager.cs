@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
     public Action OnCancelClimb;
     public Action OnCancelGlide;
     public Action OnGlideInput;
+    public Action OnPunchInput;
 
     [SerializeField]
     private bool _isToggleCrouch;
@@ -28,6 +29,7 @@ public class InputManager : MonoBehaviour
         CheckClimbInput();
         CheckCancelInput();
         CheckGlideInput();
+        CheckPunchInput();
     }
 
     private void CheckCrouchInput()
@@ -103,6 +105,14 @@ public class InputManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
         {
             OnGlideInput();
+        }
+    }
+
+    private void CheckPunchInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            OnPunchInput();
         }
     }
 }

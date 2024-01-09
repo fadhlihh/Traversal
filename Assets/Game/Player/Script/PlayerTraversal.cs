@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum PlayerStance
@@ -68,6 +69,16 @@ public class PlayerTraversal : MonoBehaviour
     [SerializeField]
     private Vector3 _maxGlideRotation;
 
+    [Header("Punch")]
+    [SerializeField]
+    private Transform _hitDetector;
+    [SerializeField]
+    private float _hitDetectorRadius;
+    [SerializeField]
+    private LayerMask _hitLayer;
+    [SerializeField]
+    private int _resetComboInterval;
+
     private Rigidbody _rigidbody;
     private Animator _animator;
     private CapsuleCollider _collider;
@@ -76,6 +87,9 @@ public class PlayerTraversal : MonoBehaviour
     private float _speed;
     private float _rotationSmoothVelocity;
     private bool _isGrounded = true;
+    private bool _isPunching;
+    private int _combo = 0;
+    private Coroutine _resetComboCoroutine;
 
     private void Awake()
     {
@@ -100,6 +114,7 @@ public class PlayerTraversal : MonoBehaviour
         _input.OnCancelClimb += CancelClimb;
         _input.OnGlideInput += StartGlide;
         _input.OnCancelGlide += CancelGlide;
+        _input.OnPunchInput += Punch;
     }
     private void Update()
     {
@@ -120,12 +135,13 @@ public class PlayerTraversal : MonoBehaviour
         _input.OnCancelClimb -= CancelClimb;
         _input.OnGlideInput -= StartGlide;
         _input.OnCancelGlide -= CancelGlide;
+        _input.OnPunchInput -= Punch;
     }
 
     private void Move(Vector3 direction)
     {
         Vector3 movementDirection = Vector3.zero;
-        if (_playerStance == PlayerStance.Stand || _playerStance == PlayerStance.Crouch)
+        if ((_playerStance == PlayerStance.Stand || _playerStance == PlayerStance.Crouch) && !_isPunching)
         {
             switch (_cameraManager.CameraState)
             {
@@ -136,7 +152,6 @@ public class PlayerTraversal : MonoBehaviour
                         float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _rotationSmoothVelocity, _rotationSmoothTime);
                         transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
                         movementDirection = Quaternion.Euler(0f, rotationAngle, 0f) * Vector3.forward;
-                        Debug.Log(_speed);
                         _rigidbody.AddForce(movementDirection * Time.deltaTime * _speed, ForceMode.Acceleration);
                     }
                     break;
@@ -333,5 +348,46 @@ public class PlayerTraversal : MonoBehaviour
     private void ChangePerspective()
     {
         _animator.SetBool("IsFirstPerson", true);
+    }
+
+    private void Punch()
+    {
+        if (!_isPunching)
+        {
+            _combo = (_combo >= 3) ? 1 : _combo + 1;
+            _isPunching = true;
+            _animator.SetInteger("Combo", _combo);
+            _animator.SetTrigger("Punch");
+            if (_resetComboCoroutine != null)
+            {
+                StopCoroutine(_resetComboCoroutine);
+            }
+            _resetComboCoroutine = StartCoroutine(ResetCombo());
+        }
+    }
+
+    private void EndPunch()
+    {
+        _isPunching = false;
+    }
+
+    private void Hit()
+    {
+        Collider[] hitObjects = Physics.OverlapSphere(_hitDetector.position, _hitDetectorRadius, _hitLayer);
+        for (int i = 0; i < hitObjects.Length; i++)
+        {
+            Destroyable destroyableObject = hitObjects[i].gameObject.GetComponent<Destroyable>();
+            if (destroyableObject != null)
+            {
+                destroyableObject.DestroyObject();
+            }
+        }
+    }
+
+    private IEnumerator ResetCombo()
+    {
+        yield return new WaitForSeconds(_resetComboInterval);
+        _combo = 0;
+        _animator.SetInteger("Combo", _combo);
     }
 }
