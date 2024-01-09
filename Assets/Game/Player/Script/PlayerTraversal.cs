@@ -136,7 +136,8 @@ public class PlayerTraversal : MonoBehaviour
                         float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, rotationAngle, ref _rotationSmoothVelocity, _rotationSmoothTime);
                         transform.rotation = Quaternion.Euler(0f, smoothAngle, 0f);
                         movementDirection = Quaternion.Euler(0f, rotationAngle, 0f) * Vector3.forward;
-                        _rigidbody.AddForce(movementDirection * Time.fixedDeltaTime * _speed, ForceMode.Acceleration);
+                        Debug.Log(_speed);
+                        _rigidbody.AddForce(movementDirection * Time.deltaTime * _speed, ForceMode.Acceleration);
                     }
                     break;
                 case CameraState.FirstPerson:
@@ -144,7 +145,7 @@ public class PlayerTraversal : MonoBehaviour
                     Vector3 verticalDirection = direction.z * transform.forward;
                     Vector3 horizontalDirection = direction.x * transform.right;
                     movementDirection = verticalDirection + horizontalDirection;
-                    _rigidbody.AddForce(movementDirection * Time.fixedDeltaTime * _speed, ForceMode.Acceleration);
+                    _rigidbody.AddForce(movementDirection * Time.deltaTime * _speed, ForceMode.Acceleration);
                     break;
                 default:
                     break;
@@ -159,9 +160,9 @@ public class PlayerTraversal : MonoBehaviour
             Vector3 horizontal = direction.x * transform.right;
             Vector3 vertical = direction.z * transform.up;
             movementDirection = horizontal + vertical;
-            _rigidbody.AddForce(movementDirection * Time.fixedDeltaTime * _climbSpeed, ForceMode.Acceleration);
-            _animator.SetFloat("ClimbVelocityX", _rigidbody.velocity.x * -1);
-            _animator.SetFloat("ClimbVelocityY", _rigidbody.velocity.y);
+            _rigidbody.AddForce(movementDirection * Time.deltaTime * _climbSpeed, ForceMode.Acceleration);
+            _animator.SetFloat("ClimbingVelocityX", _rigidbody.velocity.x * -1);
+            _animator.SetFloat("ClimbingVelocityY", _rigidbody.velocity.y);
         }
         else if (_playerStance == PlayerStance.Glide)
         {
@@ -183,7 +184,7 @@ public class PlayerTraversal : MonoBehaviour
             Vector3 rotationDegree = transform.rotation.eulerAngles;
             float lift = rotationDegree.x;
             Vector3 movementDirection = (transform.forward * _glideSpeed) + (transform.up * (lift + _airDrag));
-            _rigidbody.AddForce(movementDirection * Time.fixedDeltaTime, ForceMode.Acceleration);
+            _rigidbody.AddForce(movementDirection * Time.deltaTime, ForceMode.Acceleration);
         }
     }
 
@@ -211,17 +212,16 @@ public class PlayerTraversal : MonoBehaviour
     {
         if (_playerStance == PlayerStance.Crouch)
         {
-            _collider.height = 1.8f;
-            _collider.center = Vector3.up * 0.9f;
+            _collider.height = 1.3f;
+            _collider.center = Vector3.up * 0.66f;
             _playerStance = PlayerStance.Stand;
             _animator.SetBool("IsCrouch", false);
             _speed = _walkSpeed;
         }
         else
         {
-
-            _collider.height = 1.3f;
-            _collider.center = Vector3.up * 0.66f;
+            _collider.height = 1.8f;
+            _collider.center = Vector3.up * 0.9f;
             _playerStance = PlayerStance.Crouch;
             _animator.SetBool("IsCrouch", true);
             _speed = _crouchSpeed;
@@ -251,7 +251,7 @@ public class PlayerTraversal : MonoBehaviour
         Vector3 jumpDirection = Vector3.up * _jumpForce;
         if (_isGrounded)
         {
-            _rigidbody.AddForce(jumpDirection * Time.fixedDeltaTime * _jumpForce, ForceMode.Acceleration);
+            _rigidbody.AddForce(jumpDirection * Time.deltaTime * _jumpForce, ForceMode.Acceleration);
             _animator.SetTrigger("Jump");
         }
     }
